@@ -1,2 +1,1 @@
 # Stream-Analyzer
-Study
