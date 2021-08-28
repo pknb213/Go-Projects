@@ -1,5 +1,3 @@
 # Stream-Analyzer
 Not Yet
-...
-.....
-..
+
