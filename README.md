@@ -5,10 +5,10 @@
 ### Framework: Reactive Reactor
 ### Architecture
 
-## Lexer
+# Lexer
 
-## Parser
+# Parser
 
-## Semantic Analyzer
+# Semantic Analyzer
 
-## Interpreter
+# Interpreter
