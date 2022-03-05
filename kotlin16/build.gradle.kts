@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
     application
 }
 
@@ -14,22 +14,23 @@ dependencies {
     implementation(kotlin("stdlib"))
 //    implementation("org.jetbrains.kotlinx.spark", "kotlin-spark-api-common", "1.0.1")
     implementation("org.jetbrains.kotlinx.spark", "kotlin-spark-api-3.0", "1.0.1")
-    implementation("org.apache.spark", "spark-sql_2.12", "3.+")
-    implementation("io.projectreactor.netty" , "reactor-netty" , "1.0.+")
+    compileOnly("org.apache.spark", "spark-sql_2.12", "3.+")
+    implementation("io.projectreactor.netty" , "reactor-netty" , "1.+")
     implementation("ch.qos.logback" , "logback-classic" , "1.+")
 //    implementation("org.slf4j" , "slf4j-log4j12" , "1.7.30")
-    implementation("org.mongodb" , "mongodb-driver-reactivestreams" , "4.2.3")
+    implementation("org.mongodb" , "mongodb-driver-reactivestreams" , "4.+")
     implementation("com.fasterxml.jackson.core" , "jackson-databind" , "2.10.4")
     implementation(kotlin("reflect"))
     implementation("com.auth0" , "java-jwt" , "3.10.3")
+    implementation("com.google.code.gson" , "gson" , "2.+")
 }
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "16"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "16"
     }
 }
 

@@ -1,4 +1,11 @@
-# Kotlin & Intelij 
+# Added
+/.gradle/
+/out/
+.DS_Store
+*.sh
+/target/
+
+# Kotlin & Intelij
 .idea/*
 */.gradle/*
 */build/*
