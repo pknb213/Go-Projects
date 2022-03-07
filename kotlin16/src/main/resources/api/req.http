@@ -1,0 +1,10 @@
+### GET Test Service
+GET localhost:8000/flume2
+#Authorization: Bearer {{jwt}}
+
+### POST App
+POST localhost:8000/flume
+#Authorization: Bearer {{jwt}}
+content-type: text/plain
+
+[{"ph": "010-1234-1234", "a": 2}]

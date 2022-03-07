@@ -8,6 +8,8 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.core.ConsoleAppender
 import io.youngjo.common.Util
+import io.youngjo.service.ServiceHelper
+import io.youngjo.service.TestService
 import org.bson.Document
 import reactor.util.Loggers.getLogger
 import reactor.util.function.Tuples
@@ -20,6 +22,7 @@ import org.jetbrains.kotlinx.spark.api.SparkLogLevel.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.util.Loggers
+import java.nio.charset.Charset
 
 
 object Server {
@@ -62,11 +65,19 @@ object Server {
                     .get("/ping") { req, res -> res.sendString(Mono.just("Pong\n")) }
                     .get("/mongo") { req, res -> res.sendString(Mono.just(get())) }
                     .get("/test") { req, res -> res.sendString(Mono.just("1")) }
+                    .post("/flume") {req, res ->
+                        res.send(req.receive().aggregate().map {
+                            println(it.toString(Charset.defaultCharset()))
+                            it
+                        })
+                    }
+                    .get("/flume2", ServiceHelper.http(TestService::get))
             }
             .port(8000)
             .compress(true)
             .bindNow()
 
+        // DB Util 여기서 초기화
         server.onDispose().block()
     }
 

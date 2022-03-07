@@ -105,4 +105,8 @@ object Util {
         }
         else uri.toPath().toFile().listFiles().filter { !it.isDirectory }.map { func(it.toPath()) }
     }
+
+    private val algorithm = "HmacSHA256"
+    private val base64UrlEncoder = Base64.getUrlEncoder().withoutPadding()
+    val base64UrlDecoder = Base64.getUrlDecoder()!!
 }
