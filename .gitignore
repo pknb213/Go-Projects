@@ -4,6 +4,7 @@
 .DS_Store
 *.sh
 /target/
+*.properties
 
 # Kotlin & Intelij
 .idea/*
