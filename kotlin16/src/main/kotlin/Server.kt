@@ -7,8 +7,12 @@ import MongoUtil
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.core.ConsoleAppender
+import com.mongodb.client.model.UpdateOneModel
+import com.mongodb.client.model.UpdateOptions
+import io.youngjo.common.MongodbUtil
 import io.youngjo.common.Util
 import org.bson.Document
+import org.bson.types.ObjectId
 import reactor.util.Loggers.getLogger
 import reactor.util.function.Tuples
 import java.lang.Math.random
@@ -19,6 +23,7 @@ import org.jetbrains.kotlinx.spark.api.*
 import org.jetbrains.kotlinx.spark.api.SparkLogLevel.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import reactor.netty.http.server.HttpServerRequest
 import reactor.util.Loggers
 
 
@@ -29,11 +34,12 @@ object Server {
         val TEST_DB_NAME = "userhabit"
         val TEST_COLLECTION_NAME = "app"
     }
+    /** Test */
     fun get(): String {
         val client = MongoClients.create("mongodb://localhost:27017")
-        val db = client.getDatabase("userhabit")
+        val db = client.getDatabase("testdb")
         val coll_ls = db.listCollections()
-        val coll = db.getCollection("app")
+        val coll = db.getCollection("test")
         val doc = coll.find()
         val ls = client.listDatabases()
         val mono = Flux
@@ -62,6 +68,27 @@ object Server {
                     .get("/ping") { req, res -> res.sendString(Mono.just("Pong\n")) }
                     .get("/mongo") { req, res -> res.sendString(Mono.just(get())) }
                     .get("/test") { req, res -> res.sendString(Mono.just("1")) }
+<<<<<<< rebert
+=======
+//                    .post("/flume") { req, res ->
+//                        res.sendString(req.receive().aggregate().map {
+//                            println(it.toString(Charset.defaultCharset()))
+////                            Mono.from(MongodbUtil.getCollection("test").bulkWrite(
+////                                listOf(
+////                                    UpdateOneModel<Document>(
+////                                        Document("_id", ObjectId() ),
+////                                        Document("\$set", Document("data", it)),
+////                                        UpdateOptions().upsert(true)
+////                                    )
+////                                )
+////                            )).subscribe()
+//                            it.release()
+//                            it.toString()
+//                        })
+//                    }
+                    .get("/flume2", ServiceHelper.http(TestService::get))
+                    .post("/flume", ServiceHelper.http(TestService::post))
+>>>>>>> update
             }
             .port(8000)
             .compress(true)
@@ -86,30 +113,5 @@ object Server {
                 start()
             }
         }
-
-//		(LoggerFactory.getLogger("org.mongodb.driver.protocol.command") as ch.qos.logback.classic.Logger).let {
-//			it.level = Level.DEBUG
-//		}
-
-//		private static Logger createLoggerFor(String string, String file) {
-//			LoggerContext lc =(LoggerContext) LoggerFactory . getILoggerFactory ();
-//			PatternLayoutEncoder ple = new PatternLayoutEncoder();
-//
-//			ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-//			ple.setContext(lc);
-//			ple.start();
-//			FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();
-//			fileAppender.setFile(file);
-//			fileAppender.setEncoder(ple);
-//			fileAppender.setContext(lc);
-//			fileAppender.start();
-//
-//			Logger logger =(Logger) LoggerFactory . getLogger (string);
-//			logger.addAppender(fileAppender);
-//			logger.setLevel(Level.DEBUG);
-//			logger.setAdditive(false); /* set to true if root should log too */
-//
-//			return logger;
-//		}
     }
 }
