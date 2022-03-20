@@ -12,6 +12,4 @@
 # Semantic Analyzer
 
 # Interpreter
-
-.
 ..
