@@ -13,5 +13,3 @@
 
 # Interpreter
 
-..
-mmm
