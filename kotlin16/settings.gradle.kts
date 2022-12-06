@@ -1,1 +1,0 @@
-rootProject.name = "Stream-Syntax-Analyzer"
