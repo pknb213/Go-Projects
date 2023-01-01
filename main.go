@@ -32,7 +32,7 @@ func superAdd(numbers ...int) (total int) {
 	return
 }
 
-func canIDring(age int) bool {
+func canIDrking(age int) bool {
 	if age < 18 {
 		return false
 	}
@@ -46,5 +46,5 @@ func main() {
 	fmt.Println(totalLength, upperName)
 	repeatMe("Cheon", "Young", "Jo", "Goods")
 	fmt.Println(superAdd(1, 2, 3, 4, 5, 6, 7))
-	fmt.Println(canIDring(16))
+	fmt.Println(canIDrking(16))
 }
