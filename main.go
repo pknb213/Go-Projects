@@ -2,6 +2,7 @@ package main
 
 import (
 	"./account"
+	"./mydict"
 	"fmt"
 	"strings"
 )
@@ -101,5 +102,46 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(account.Balance())
+	fmt.Println(account.Balance(), account.Owner(), account.String(), "\n\n\n")
+
+	dictionary := mydict.Dictionary{"first": "Frist word"}
+	fmt.Println(dictionary["first"])
+	definition, err := dictionary.Search("second")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(definition)
+	}
+
+	word := "hello"
+	definition2 := "Grreeting"
+	err2 := dictionary.Add(word, definition2)
+	if err != nil {
+		fmt.Println(err2)
+	}
+	hello, _ := dictionary.Search(word)
+	fmt.Println(hello)
+	err3 := dictionary.Add(word, definition)
+	if err3 != nil {
+		fmt.Println(err3)
+	}
+
+	fmt.Println("\n")
+
+	dictionary2 := mydict.Dictionary{}
+	baseWord := "hello"
+	dictionary2.Add(baseWord, "First")
+	err4 := dictionary2.Update(baseWord, "Second")
+	if err4 != nil {
+		fmt.Println(err4)
+	}
+	word1, _ := dictionary2.Search(baseWord)
+	fmt.Println(word1)
+	dictionary2.Delete(baseWord)
+	word2, err5 := dictionary2.Search(baseWord)
+	if err5 != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(word2)
+	}
 }
