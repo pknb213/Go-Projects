@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./account"
-	"./mydict"
+	"basicTest/account"
+	"basicTest/mydict"
 	"fmt"
 	"strings"
 )
