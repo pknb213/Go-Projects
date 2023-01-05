@@ -1,51 +1,39 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"log"
 	"net/http"
 )
 
-var errRequestFailed = errors.New("Request failed")
-
-type result struct {
-	url    string
-	status string
-}
+var baseURL string = "https://kr.indeed.com/jobs?q=python&limit=50"
 
 func main() {
-	results := make(map[string]string)
-	c := make(chan result)
-	urls := []string{
-		"https://www.airbnb.com/",
-		"https://www.google.com/",
-		"https://www.amazon.com/",
-		"https://www.reddit.com/",
-		"https://www.google.com/",
-		"https://soundcloud.com/",
-		"https://www.facebook.com/",
-		"https://www.instagram.com/",
-		"https://academy.nomadcoders.co/",
-	}
-	for _, url := range urls {
-		go hitURL(url, c)
-	}
+	pages := getPages()
+}
 
-	for i := 0; i < len(urls); i++ {
-		result := <-c
-		results[result.url] = result.status
-	}
+func getPages() int {
+	res, err := http.Get(baseURL)
+	checkErr(err)
+	checkCode(res)
 
-	for url, status := range results {
-		fmt.Println(url, status)
+	defer res.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	checkErr(err)
+	fmt.Println(doc)
+
+	return 0
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatalln(err)
 	}
 }
 
-func hitURL(url string, c chan<- result) {
-	resp, err := http.Get(url)
-	status := "OK"
-	if err != nil || resp.StatusCode >= 400 {
-		status = "FAILED"
+func checkCode(res *http.Response) {
+	if res.StatusCode != 200 {
+		log.Fatalln("Request failed with Status: ", res.StatusCode)
 	}
-	c <- result{url: url, status: status}
 }
