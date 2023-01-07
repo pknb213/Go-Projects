@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"go/types"
 	"log"
 	"net/http"
 	"os"
@@ -26,11 +27,17 @@ type extractedJob struct {
 
 func main() {
 	var jobs []extractedJob
+	c := make(chan []extractedJob)
 	fmt.Println("Scrapper Start")
 	totalPages := getPages()
 
 	for i := 0; i < totalPages; i++ {
-		extractedJobs := getPage(i)
+		go getPage(i, c)
+
+	}
+
+	for i := 0; i < totalPages; i++ {
+		extractedJobs := <-c
 		jobs = append(jobs, extractedJobs...)
 	}
 
@@ -38,32 +45,9 @@ func main() {
 	fmt.Println("Done, Extracted")
 }
 
-func writejobs(jobs []extractedJob) {
-	file, err := os.Create("jobs.csv")
-	checkErr(err)
-
-	w := csv.NewWriter(file)
-	defer w.Flush()
-
-	headers := []string{"ID", "Title", "Csn", "Info"}
-
-	wErr := w.Write(headers)
-	checkErr(wErr)
-
-	for _, job := range jobs {
-		jobSlice := []string{
-			"https://www.saramin.co.kr/zf_user/salaries/total-salary/view?csn=" + job.csn,
-			job.title,
-			job.csn,
-			job.info,
-		}
-		jwErr := w.Write(jobSlice)
-		checkErr(jwErr)
-	}
-}
-
-func getPage(page int) []extractedJob {
+func getPage(page int, mainC chan<- []extractedJob) {
 	var jobs []extractedJob
+	c := make(chan extractedJob)
 	pageURL := baseURL + "?page=" + strconv.Itoa(page)
 	fmt.Println("Requesting", pageURL)
 	res, err := http.Get(pageURL)
@@ -76,13 +60,18 @@ func getPage(page int) []extractedJob {
 	checkErr(err)
 
 	doc.Find(".company_info").Each(func(i int, card *goquery.Selection) {
-		job := extractJob(card)
-		jobs = append(jobs, job)
+		go extractJob(card, c)
 	})
-	return jobs
+
+	for i := 0; i < doc.Length()-1; i++ {
+		job := <-c
+		jobs = append(jobs, job)
+	}
+
+	mainC <- jobs
 }
 
-func extractJob(card *goquery.Selection) extractedJob {
+func extractJob(card *goquery.Selection, c chan<- extractedJob) {
 	id, _ := card.Find(".link_tit").Attr("href")
 
 	//rgx, _ := regexp.Compile("(?<=(csn=))([0-9]+)") 왜 안되는지 이유가 모르곘네 후방탐색 지원이 안되나??
@@ -96,7 +85,7 @@ func extractJob(card *goquery.Selection) extractedJob {
 	info := cleanString(card.Find(".info_item>dd").Text())
 	//fmt.Println(info)
 
-	return extractedJob{
+	c <- extractedJob{
 		id:    id,
 		title: title,
 		csn:   csn,
@@ -120,6 +109,38 @@ func getPages() int {
 	})
 
 	return pages
+}
+
+func writejobs(jobs []extractedJob) {
+	file, err := os.Create("jobs.csv")
+	checkErr(err)
+
+	w := csv.NewWriter(file)
+	defer w.Flush()
+
+	headers := []string{"ID", "Title", "Csn", "Info"}
+
+	wErr := w.Write(headers)
+	checkErr(wErr)
+
+	c := make(chan types.Nil)
+
+	for _, job := range jobs {
+		go createJob(job, w, c)
+		_ = <-c
+	}
+}
+
+func createJob(job extractedJob, w *csv.Writer, c chan types.Nil) {
+	jobSlice := []string{
+		"https://www.saramin.co.kr/zf_user/salaries/total-salary/view?csn=" + job.csn,
+		job.title,
+		job.csn,
+		job.info,
+	}
+	jwErr := w.Write(jobSlice)
+	checkErr(jwErr)
+	c <- types.Nil{}
 }
 
 func checkErr(err error) {
