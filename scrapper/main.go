@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"go/types"
 	"log"
 	"net/http"
 	"os"
@@ -33,7 +32,6 @@ func main() {
 
 	for i := 0; i < totalPages; i++ {
 		go getPage(i, c)
-
 	}
 
 	for i := 0; i < totalPages; i++ {
@@ -59,11 +57,12 @@ func getPage(page int, mainC chan<- []extractedJob) {
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	checkErr(err)
 
-	doc.Find(".company_info").Each(func(i int, card *goquery.Selection) {
+	searchCards := doc.Find(".company_info")
+	searchCards.Each(func(i int, card *goquery.Selection) {
 		go extractJob(card, c)
 	})
 
-	for i := 0; i < doc.Length()-1; i++ {
+	for i := 0; i < searchCards.Length(); i++ {
 		job := <-c
 		jobs = append(jobs, job)
 	}
@@ -123,24 +122,16 @@ func writejobs(jobs []extractedJob) {
 	wErr := w.Write(headers)
 	checkErr(wErr)
 
-	c := make(chan types.Nil)
-
 	for _, job := range jobs {
-		go createJob(job, w, c)
-		_ = <-c
+		jobSlice := []string{
+			"https://www.saramin.co.kr/zf_user/salaries/total-salary/view?csn=" + job.csn,
+			job.title,
+			job.csn,
+			job.info,
+		}
+		jwErr := w.Write(jobSlice)
+		checkErr(jwErr)
 	}
-}
-
-func createJob(job extractedJob, w *csv.Writer, c chan types.Nil) {
-	jobSlice := []string{
-		"https://www.saramin.co.kr/zf_user/salaries/total-salary/view?csn=" + job.csn,
-		job.title,
-		job.csn,
-		job.info,
-	}
-	jwErr := w.Write(jobSlice)
-	checkErr(jwErr)
-	c <- types.Nil{}
 }
 
 func checkErr(err error) {
