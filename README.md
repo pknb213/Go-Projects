@@ -5,5 +5,3 @@
 
 2. Jin Server 
 서버 
-
-.
